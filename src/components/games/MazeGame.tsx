@@ -1,31 +1,28 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, RotateCcw, Trophy } from "lucide-react";
-
-const MAZE_SIZE = 9;
-const CELL_SIZE = 40;
-
-// 0 = path, 1 = wall, 2 = start, 3 = goal (sandwich)
-const initialMaze = [
-  [2, 0, 1, 1, 0, 0, 0, 1, 1],
-  [1, 0, 0, 1, 0, 1, 0, 0, 1],
-  [1, 1, 0, 0, 0, 1, 1, 0, 1],
-  [1, 0, 0, 1, 0, 0, 0, 0, 1],
-  [1, 0, 1, 1, 1, 1, 1, 0, 0],
-  [1, 0, 0, 0, 0, 0, 1, 1, 0],
-  [1, 1, 1, 1, 1, 0, 0, 0, 0],
-  [1, 0, 0, 0, 0, 0, 1, 1, 0],
-  [1, 1, 1, 1, 1, 1, 1, 0, 3],
-];
+import { mazeConfigs, type Difficulty } from "./mazeConfigs";
+import DifficultySelector from "./DifficultySelector";
 
 type Position = { x: number; y: number };
 
 const MazeGame = () => {
+  const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [playerPos, setPlayerPos] = useState<Position>({ x: 0, y: 0 });
   const [hasWon, setHasWon] = useState(false);
   const [moves, setMoves] = useState(0);
 
-  const resetGame = () => {
+  const config = mazeConfigs[difficulty];
+  const { size, cellSize, maze } = config;
+
+  const resetGame = useCallback(() => {
+    setPlayerPos({ x: 0, y: 0 });
+    setHasWon(false);
+    setMoves(0);
+  }, []);
+
+  const handleDifficultyChange = (newDifficulty: Difficulty) => {
+    setDifficulty(newDifficulty);
     setPlayerPos({ x: 0, y: 0 });
     setHasWon(false);
     setMoves(0);
@@ -38,26 +35,23 @@ const MazeGame = () => {
       const newX = prev.x + dx;
       const newY = prev.y + dy;
 
-      // Check bounds
-      if (newX < 0 || newX >= MAZE_SIZE || newY < 0 || newY >= MAZE_SIZE) {
+      if (newX < 0 || newX >= size || newY < 0 || newY >= size) {
         return prev;
       }
 
-      // Check wall
-      if (initialMaze[newY][newX] === 1) {
+      if (maze[newY][newX] === 1) {
         return prev;
       }
 
       setMoves((m) => m + 1);
 
-      // Check win
-      if (initialMaze[newY][newX] === 3) {
+      if (maze[newY][newX] === 3) {
         setHasWon(true);
       }
 
       return { x: newX, y: newY };
     });
-  }, [hasWon]);
+  }, [hasWon, size, maze]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -83,34 +77,40 @@ const MazeGame = () => {
 
   return (
     <div className="game-card">
-      <div className="text-center mb-6">
+      <div className="text-center mb-4">
         <h3 className="text-2xl font-display text-primary mb-2">
           🏃 Maze Adventure! 🍔
         </h3>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground text-sm mb-4">
           Help the hungry kid find the delicious chicken sandwich!
         </p>
+        
+        <DifficultySelector
+          currentDifficulty={difficulty}
+          onSelect={handleDifficultyChange}
+          configs={mazeConfigs}
+        />
       </div>
 
       {hasWon && (
-        <div className="bg-pickle/10 border-2 border-pickle rounded-xl p-4 mb-6 text-center animate-celebrate">
-          <Trophy className="w-12 h-12 text-mustard mx-auto mb-2" />
-          <p className="text-xl font-display text-pickle">
+        <div className="bg-pickle/10 border-2 border-pickle rounded-xl p-4 mb-4 text-center animate-celebrate">
+          <Trophy className="w-10 h-10 text-mustard mx-auto mb-2" />
+          <p className="text-lg font-display text-pickle">
             🎉 Yummy! You found it in {moves} moves! 🎉
           </p>
         </div>
       )}
 
-      <div className="flex flex-col items-center gap-6">
+      <div className="flex flex-col items-center gap-4">
         {/* Maze Grid */}
         <div
           className="relative rounded-2xl overflow-hidden shadow-game border-4 border-bread"
           style={{
-            width: MAZE_SIZE * CELL_SIZE,
-            height: MAZE_SIZE * CELL_SIZE,
+            width: size * cellSize,
+            height: size * cellSize,
           }}
         >
-          {initialMaze.map((row, y) =>
+          {maze.map((row, y) =>
             row.map((cell, x) => (
               <div
                 key={`${x}-${y}`}
@@ -122,14 +122,14 @@ const MazeGame = () => {
                     : "bg-cream"
                 }`}
                 style={{
-                  left: x * CELL_SIZE,
-                  top: y * CELL_SIZE,
-                  width: CELL_SIZE,
-                  height: CELL_SIZE,
+                  left: x * cellSize,
+                  top: y * cellSize,
+                  width: cellSize,
+                  height: cellSize,
                 }}
               >
                 {cell === 3 && (
-                  <span className="absolute inset-0 flex items-center justify-center text-2xl">
+                  <span className="absolute inset-0 flex items-center justify-center text-xl">
                     🍔
                   </span>
                 )}
@@ -139,12 +139,12 @@ const MazeGame = () => {
 
           {/* Player */}
           <div
-            className="absolute transition-all duration-200 ease-out flex items-center justify-center text-2xl"
+            className="absolute transition-all duration-200 ease-out flex items-center justify-center text-xl"
             style={{
-              left: playerPos.x * CELL_SIZE,
-              top: playerPos.y * CELL_SIZE,
-              width: CELL_SIZE,
-              height: CELL_SIZE,
+              left: playerPos.x * cellSize,
+              top: playerPos.y * cellSize,
+              width: cellSize,
+              height: cellSize,
             }}
           >
             <span className={hasWon ? "animate-celebrate" : "animate-bounce-gentle"}>
@@ -156,8 +156,12 @@ const MazeGame = () => {
         {/* Stats */}
         <div className="flex gap-4 text-center">
           <div className="bg-secondary/50 rounded-xl px-4 py-2">
-            <p className="text-sm text-muted-foreground">Moves</p>
-            <p className="text-2xl font-display text-primary">{moves}</p>
+            <p className="text-xs text-muted-foreground">Moves</p>
+            <p className="text-xl font-display text-primary">{moves}</p>
+          </div>
+          <div className="bg-secondary/50 rounded-xl px-4 py-2">
+            <p className="text-xs text-muted-foreground">Level</p>
+            <p className="text-xl font-display text-primary">{config.emoji}</p>
           </div>
         </div>
 
@@ -168,9 +172,9 @@ const MazeGame = () => {
             size="icon"
             onClick={() => movePlayer(0, -1)}
             disabled={hasWon}
-            className="w-12 h-12 rounded-xl"
+            className="w-10 h-10 rounded-xl"
           >
-            <ArrowUp className="w-6 h-6" />
+            <ArrowUp className="w-5 h-5" />
           </Button>
           <div className="flex gap-2">
             <Button
@@ -178,37 +182,37 @@ const MazeGame = () => {
               size="icon"
               onClick={() => movePlayer(-1, 0)}
               disabled={hasWon}
-              className="w-12 h-12 rounded-xl"
+              className="w-10 h-10 rounded-xl"
             >
-              <ArrowLeft className="w-6 h-6" />
+              <ArrowLeft className="w-5 h-5" />
             </Button>
             <Button
               variant="outline"
               size="icon"
               onClick={() => movePlayer(0, 1)}
               disabled={hasWon}
-              className="w-12 h-12 rounded-xl"
+              className="w-10 h-10 rounded-xl"
             >
-              <ArrowDown className="w-6 h-6" />
+              <ArrowDown className="w-5 h-5" />
             </Button>
             <Button
               variant="outline"
               size="icon"
               onClick={() => movePlayer(1, 0)}
               disabled={hasWon}
-              className="w-12 h-12 rounded-xl"
+              className="w-10 h-10 rounded-xl"
             >
-              <ArrowRight className="w-6 h-6" />
+              <ArrowRight className="w-5 h-5" />
             </Button>
           </div>
         </div>
 
-        <Button onClick={resetGame} variant="secondary" className="gap-2">
+        <Button onClick={resetGame} variant="secondary" size="sm" className="gap-2">
           <RotateCcw className="w-4 h-4" />
           Play Again
         </Button>
 
-        <p className="text-sm text-muted-foreground text-center">
+        <p className="text-xs text-muted-foreground text-center">
           Use arrow keys or buttons to move!
         </p>
       </div>
