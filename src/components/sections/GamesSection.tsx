@@ -5,20 +5,27 @@ import MemoryGame from "@/components/games/MemoryGame";
 import WordSearchGame from "@/components/games/WordSearchGame";
 import TicTacToeGame from "@/components/games/TicTacToeGame";
 import SpotDifferenceGame from "@/components/games/SpotDifferenceGame";
-import { Sparkles } from "lucide-react";
+import { Sparkles, ArrowLeft } from "lucide-react";
+
+import gameMaze from "@/assets/game-maze.jpg";
+import gameCrossword from "@/assets/game-crossword.jpg";
+import gameMemory from "@/assets/game-memory.jpg";
+import gameWordsearch from "@/assets/game-wordsearch.jpg";
+import gameTictactoe from "@/assets/game-tictactoe.jpg";
+import gameSpotdiff from "@/assets/game-spotdiff.jpg";
 
 const games = [
-  { id: "maze", label: "Maze", icon: "🏃", component: MazeGame },
-  { id: "crossword", label: "Crossword", icon: "📝", component: CrosswordGame },
-  { id: "memory", label: "Memory", icon: "🃏", component: MemoryGame },
-  { id: "wordsearch", label: "Word Search", icon: "🔍", component: WordSearchGame },
-  { id: "tictactoe", label: "Tic-Tac-Toe", icon: "⭕", component: TicTacToeGame },
-  { id: "spotdiff", label: "Spot Diff", icon: "👀", component: SpotDifferenceGame },
+  { id: "maze", label: "Maze", image: gameMaze, component: MazeGame },
+  { id: "crossword", label: "Crossword", image: gameCrossword, component: CrosswordGame },
+  { id: "memory", label: "Memory", image: gameMemory, component: MemoryGame },
+  { id: "wordsearch", label: "Word Search", image: gameWordsearch, component: WordSearchGame },
+  { id: "tictactoe", label: "Tic-Tac-Toe", image: gameTictactoe, component: TicTacToeGame },
+  { id: "spotdiff", label: "Spot Diff", image: gameSpotdiff, component: SpotDifferenceGame },
 ];
 
 const GamesSection = () => {
-  const [activeGame, setActiveGame] = useState("maze");
-  const ActiveComponent = games.find((g) => g.id === activeGame)!.component;
+  const [activeGame, setActiveGame] = useState<string | null>(null);
+  const activeEntry = activeGame ? games.find((g) => g.id === activeGame) : null;
 
   return (
     <section id="games" className="py-16 md:py-24 bg-secondary/30">
@@ -37,28 +44,40 @@ const GamesSection = () => {
           </p>
         </div>
 
-        {/* Game Tabs */}
-        <div className="flex flex-wrap justify-center gap-2 mb-8 max-w-3xl mx-auto">
-          {games.map((game) => (
+        {activeEntry ? (
+          /* Active Game View */
+          <div className="max-w-2xl mx-auto">
             <button
-              key={game.id}
-              onClick={() => setActiveGame(game.id)}
-              className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                activeGame === game.id
-                  ? "bg-primary text-primary-foreground shadow-button scale-105"
-                  : "bg-card text-foreground border border-border hover:bg-secondary hover:scale-102"
-              }`}
+              onClick={() => setActiveGame(null)}
+              className="flex items-center gap-2 mb-6 px-4 py-2 rounded-xl bg-card border border-border text-foreground hover:bg-secondary transition-all text-sm font-medium"
             >
-              <span className="text-lg">{game.icon}</span>
-              <span className="hidden sm:inline">{game.label}</span>
+              <ArrowLeft className="w-4 h-4" />
+              Back to Games
             </button>
-          ))}
-        </div>
-
-        {/* Active Game */}
-        <div className="max-w-2xl mx-auto">
-          <ActiveComponent />
-        </div>
+            <activeEntry.component />
+          </div>
+        ) : (
+          /* Game Grid - Poki Style */
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
+            {games.map((game) => (
+              <button
+                key={game.id}
+                onClick={() => setActiveGame(game.id)}
+                className="group relative aspect-square rounded-2xl overflow-hidden shadow-soft border border-border hover:shadow-lg hover:scale-[1.03] transition-all duration-200"
+              >
+                <img
+                  src={game.image}
+                  alt={game.label}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <span className="absolute bottom-3 left-3 right-3 text-white font-bold text-base md:text-lg drop-shadow-md text-left">
+                  {game.label}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Fun Facts */}
         <div className="mt-16 text-center">
