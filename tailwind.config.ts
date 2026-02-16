@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Fredoka", "sans-serif"],
-        body: ["Nunito", "sans-serif"],
+        display: ["Outfit", "sans-serif"],
+        body: ["DM Sans", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -55,6 +55,10 @@ export default {
           DEFAULT: "hsl(var(--sunshine))",
           foreground: "hsl(var(--sunshine-foreground))",
         },
+        gold: {
+          DEFAULT: "hsl(var(--gold))",
+          foreground: "hsl(var(--gold-foreground))",
+        },
         ketchup: {
           DEFAULT: "hsl(var(--ketchup))",
           foreground: "hsl(var(--ketchup-foreground))",
@@ -66,11 +70,12 @@ export default {
           DEFAULT: "hsl(var(--pickle))",
           foreground: "hsl(var(--pickle-foreground))",
         },
-        bread: {
-          DEFAULT: "hsl(var(--bread))",
-        },
         cream: {
           DEFAULT: "hsl(var(--cream))",
+        },
+        dark: {
+          DEFAULT: "hsl(var(--dark))",
+          foreground: "hsl(var(--dark-foreground))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
@@ -95,23 +100,17 @@ export default {
         soft: "var(--shadow-soft)",
         game: "var(--shadow-game)",
         button: "var(--shadow-button)",
+        card: "var(--shadow-card)",
+        glow: "var(--shadow-glow)",
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
         },
       },
       animation: {
