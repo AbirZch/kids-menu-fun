@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { RotateCcw, Trophy } from "lucide-react";
 import type { Difficulty } from "./mazeConfigs";
@@ -56,15 +56,16 @@ const WordSearchGame = () => {
   const config = configs[difficulty];
   const [{ grid, placements }, setData] = useState(() => generateGrid(config.rows, config.cols, config.words));
   const [foundWords, setFoundWords] = useState<Set<string>>(new Set());
-  const [selectStart, setSelectStart] = useState<Pos | null>(null);
-  const [selectEnd, setSelectEnd] = useState<Pos | null>(null);
+  const [dragStart, setDragStart] = useState<Pos | null>(null);
+  const [dragEnd, setDragEnd] = useState<Pos | null>(null);
+  const isDragging = useRef(false);
 
   const resetGame = useCallback((diff: Difficulty) => {
     const c = configs[diff];
     setData(generateGrid(c.rows, c.cols, c.words));
     setFoundWords(new Set());
-    setSelectStart(null);
-    setSelectEnd(null);
+    setDragStart(null);
+    setDragEnd(null);
   }, []);
 
   const handleDifficultyChange = (d: Difficulty) => { setDifficulty(d); resetGame(d); };
@@ -74,30 +75,50 @@ const WordSearchGame = () => {
     const lenR = Math.abs(b.r - a.r), lenC = Math.abs(b.c - a.c);
     if (lenR !== 0 && lenC !== 0 && lenR !== lenC) return null;
     const len = Math.max(lenR, lenC);
+    if (len === 0) return [{ r: a.r, c: a.c }];
     return Array.from({ length: len + 1 }, (_, i) => ({ r: a.r + dr * i, c: a.c + dc * i }));
   };
 
-  const handleCellClick = (r: number, c: number) => {
-    if (!selectStart) {
-      setSelectStart({ r, c });
-      setSelectEnd(null);
-    } else {
-      const cells = getCellsInLine(selectStart, { r, c });
-      if (cells) {
-        const word = cells.map((p) => grid[p.r][p.c]).join("");
-        const revWord = [...word].reverse().join("");
-        const match = placements.find((p) => (p.word === word || p.word === revWord) && !foundWords.has(p.word));
-        if (match) setFoundWords((prev) => new Set(prev).add(match.word));
-      }
-      setSelectStart(null);
-      setSelectEnd(null);
+  const checkSelection = (start: Pos, end: Pos) => {
+    const cells = getCellsInLine(start, end);
+    if (cells && cells.length > 1) {
+      const word = cells.map((p) => grid[p.r][p.c]).join("");
+      const revWord = [...word].reverse().join("");
+      const match = placements.find((p) => (p.word === word || p.word === revWord) && !foundWords.has(p.word));
+      if (match) setFoundWords((prev) => new Set(prev).add(match.word));
     }
   };
 
-  const isHighlighted = (r: number, c: number) => {
-    if (selectStart && selectStart.r === r && selectStart.c === c) return true;
-    return placements.some((p) => foundWords.has(p.word) && p.cells.some((cell) => cell.r === r && cell.c === c));
+  const handlePointerDown = (r: number, c: number) => {
+    isDragging.current = true;
+    setDragStart({ r, c });
+    setDragEnd({ r, c });
   };
+
+  const handlePointerEnter = (r: number, c: number) => {
+    if (isDragging.current && dragStart) {
+      setDragEnd({ r, c });
+    }
+  };
+
+  const handlePointerUp = () => {
+    if (dragStart && dragEnd) {
+      checkSelection(dragStart, dragEnd);
+    }
+    isDragging.current = false;
+    setDragStart(null);
+    setDragEnd(null);
+  };
+
+  const getDragCells = (): Set<string> => {
+    const set = new Set<string>();
+    if (!dragStart || !dragEnd) return set;
+    const cells = getCellsInLine(dragStart, dragEnd);
+    if (cells) cells.forEach((p) => set.add(`${p.r}-${p.c}`));
+    return set;
+  };
+
+  const dragCells = getDragCells();
 
   const isFound = (r: number, c: number) =>
     placements.some((p) => foundWords.has(p.word) && p.cells.some((cell) => cell.r === r && cell.c === c));
@@ -129,17 +150,23 @@ const WordSearchGame = () => {
           ))}
         </div>
 
-        <p className="text-xs text-muted-foreground">Click first letter, then last letter of a word</p>
+        <p className="text-xs text-muted-foreground">Drag across letters to select a word</p>
 
         {/* Grid */}
-        <div className="grid gap-0.5 bg-border p-1 rounded-xl shadow-game" style={{ gridTemplateColumns: `repeat(${config.cols}, 28px)` }}>
+        <div
+          className="grid gap-0.5 bg-border p-1 rounded-xl shadow-game select-none"
+          style={{ gridTemplateColumns: `repeat(${config.cols}, 28px)`, touchAction: "none" }}
+          onPointerUp={handlePointerUp}
+          onPointerLeave={handlePointerUp}
+        >
           {grid.map((row, r) =>
             row.map((letter, c) => (
               <button
                 key={`${r}-${c}`}
-                onClick={() => handleCellClick(r, c)}
+                onPointerDown={(e) => { e.preventDefault(); handlePointerDown(r, c); }}
+                onPointerEnter={() => handlePointerEnter(r, c)}
                 className={`w-7 h-7 text-xs font-bold rounded transition-all ${
-                  selectStart?.r === r && selectStart?.c === c
+                  dragCells.has(`${r}-${c}`)
                     ? "bg-primary text-primary-foreground scale-110"
                     : isFound(r, c)
                     ? "bg-pickle/20 text-pickle"
