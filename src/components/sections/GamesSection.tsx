@@ -5,22 +5,15 @@ import MemoryGame from "@/components/games/MemoryGame";
 import WordSearchGame from "@/components/games/WordSearchGame";
 import TicTacToeGame from "@/components/games/TicTacToeGame";
 import SpotDifferenceGame from "@/components/games/SpotDifferenceGame";
-import { Sparkles, ArrowLeft } from "lucide-react";
-
-import gameMaze from "@/assets/game-maze.jpg";
-import gameCrossword from "@/assets/game-crossword.jpg";
-import gameMemory from "@/assets/game-memory.jpg";
-import gameWordsearch from "@/assets/game-wordsearch.jpg";
-import gameTictactoe from "@/assets/game-tictactoe.jpg";
-import gameSpotdiff from "@/assets/game-spotdiff.jpg";
+import { ArrowLeft, Gamepad2 } from "lucide-react";
 
 const games = [
-  { id: "maze", label: "Maze", image: gameMaze, component: MazeGame },
-  { id: "crossword", label: "Crossword", image: gameCrossword, component: CrosswordGame },
-  { id: "memory", label: "Memory", image: gameMemory, component: MemoryGame },
-  { id: "wordsearch", label: "Word Search", image: gameWordsearch, component: WordSearchGame },
-  { id: "tictactoe", label: "Tic-Tac-Toe", image: gameTictactoe, component: TicTacToeGame },
-  { id: "spotdiff", label: "Spot Diff", image: gameSpotdiff, component: SpotDifferenceGame },
+  { id: "maze", label: "Maze Runner", emoji: "🏃", desc: "Navigate the maze!", color: "from-amber-400 to-yellow-500", component: MazeGame },
+  { id: "crossword", label: "Crossword", emoji: "📝", desc: "Food word puzzle", color: "from-emerald-400 to-green-500", component: CrosswordGame },
+  { id: "memory", label: "Memory Match", emoji: "🃏", desc: "Find the pairs!", color: "from-violet-400 to-purple-500", component: MemoryGame },
+  { id: "wordsearch", label: "Word Search", emoji: "🔍", desc: "Hidden words", color: "from-sky-400 to-blue-500", component: WordSearchGame },
+  { id: "tictactoe", label: "Tic-Tac-Toe", emoji: "⭕", desc: "Beat the AI!", color: "from-rose-400 to-red-500", component: TicTacToeGame },
+  { id: "spotdiff", label: "Spot the Diff", emoji: "👀", desc: "Find differences", color: "from-orange-400 to-amber-500", component: SpotDifferenceGame },
 ];
 
 const GamesSection = () => {
@@ -28,19 +21,25 @@ const GamesSection = () => {
   const activeEntry = activeGame ? games.find((g) => g.id === activeGame) : null;
 
   return (
-    <section id="games" className="py-16 md:py-24 bg-secondary/30">
-      <div className="container mx-auto px-4">
+    <section id="games" className="py-20 md:py-28 bg-background relative">
+      {/* Subtle pattern */}
+      <div className="absolute inset-0 opacity-[0.015]" style={{
+        backgroundImage: `radial-gradient(hsl(var(--foreground)) 1px, transparent 1px)`,
+        backgroundSize: "24px 24px",
+      }} />
+
+      <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-4 py-2 mb-4">
-            <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-primary text-sm font-medium">Kids Zone</span>
+        <div className="text-center mb-14">
+          <div className="inline-flex items-center gap-2 bg-accent text-accent-foreground rounded-full px-5 py-2 mb-5">
+            <Gamepad2 className="w-4 h-4" />
+            <span className="text-sm font-bold tracking-wide">Kids Zone</span>
           </div>
-          <h2 className="text-3xl md:text-5xl font-display text-foreground mb-4">
-            Fun & Games! 🎮
+          <h2 className="text-4xl md:text-6xl font-display font-black text-foreground mb-4 tracking-tight">
+            Fun & Games
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            While waiting for your yummy food, challenge yourself with our exciting games!
+          <p className="text-lg text-muted-foreground max-w-lg mx-auto">
+            While waiting for your meal, jump into our exciting games!
           </p>
         </div>
 
@@ -49,47 +48,56 @@ const GamesSection = () => {
           <div className="max-w-2xl mx-auto">
             <button
               onClick={() => setActiveGame(null)}
-              className="flex items-center gap-2 mb-6 px-4 py-2 rounded-xl bg-card border border-border text-foreground hover:bg-secondary transition-all text-sm font-medium"
+              className="group flex items-center gap-2 mb-6 px-4 py-2.5 rounded-xl bg-accent text-accent-foreground hover:bg-accent/90 transition-all text-sm font-semibold"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
               Back to Games
             </button>
             <activeEntry.component />
           </div>
         ) : (
-          /* Game Grid - Poki Style */
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
+          /* Game Grid */
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-5 max-w-3xl mx-auto">
             {games.map((game) => (
               <button
                 key={game.id}
                 onClick={() => setActiveGame(game.id)}
-                className="group relative aspect-square rounded-2xl overflow-hidden shadow-soft border border-border hover:shadow-lg hover:scale-[1.03] transition-all duration-200"
+                className="group relative flex flex-col items-center justify-center aspect-square rounded-2xl overflow-hidden border border-border bg-card hover:shadow-glow hover:scale-[1.04] hover:border-primary/40 transition-all duration-300"
               >
-                <img
-                  src={game.image}
-                  alt={game.label}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                <span className="absolute bottom-3 left-3 right-3 text-white font-bold text-base md:text-lg drop-shadow-md text-left">
+                {/* Gradient background on hover */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${game.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
+
+                {/* Emoji */}
+                <span className="text-5xl md:text-6xl mb-3 group-hover:scale-110 transition-transform duration-300 select-none">
+                  {game.emoji}
+                </span>
+
+                {/* Label */}
+                <span className="font-display font-bold text-sm md:text-base text-foreground">
                   {game.label}
                 </span>
+                <span className="text-[11px] text-muted-foreground mt-0.5">
+                  {game.desc}
+                </span>
+
+                {/* Bottom accent line */}
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
               </button>
             ))}
           </div>
         )}
 
         {/* Fun Facts */}
-        <div className="mt-16 text-center">
-          <h3 className="text-xl font-display text-primary mb-6">Did You Know? 🤔</h3>
+        <div className="mt-20 text-center">
+          <h3 className="text-lg font-display font-bold text-foreground mb-6">Did You Know? 🤔</h3>
           <div className="flex flex-wrap justify-center gap-4">
             {[
               "🍔 Americans eat 50 billion burgers a year!",
               "🍗 Fried chicken was popularized in the American South!",
               "🍦 The average American eats 23 lbs of ice cream per year!",
             ].map((fact, index) => (
-              <div key={index} className="bg-card rounded-2xl px-6 py-4 shadow-soft border border-border max-w-sm">
-                <p className="text-muted-foreground">{fact}</p>
+              <div key={index} className="bg-card rounded-xl px-5 py-3.5 shadow-soft border border-border max-w-xs">
+                <p className="text-sm text-muted-foreground">{fact}</p>
               </div>
             ))}
           </div>
