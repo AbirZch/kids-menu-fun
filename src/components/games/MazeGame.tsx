@@ -74,10 +74,10 @@ const MazeGame = () => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
-        case "ArrowUp": movePlayer(0, -1); break;
-        case "ArrowDown": movePlayer(0, 1); break;
-        case "ArrowLeft": movePlayer(-1, 0); break;
-        case "ArrowRight": movePlayer(1, 0); break;
+        case "ArrowUp": e.preventDefault(); movePlayer(0, -1); break;
+        case "ArrowDown": e.preventDefault(); movePlayer(0, 1); break;
+        case "ArrowLeft": e.preventDefault(); movePlayer(-1, 0); break;
+        case "ArrowRight": e.preventDefault(); movePlayer(1, 0); break;
       }
     };
     window.addEventListener("keydown", handleKeyDown);
