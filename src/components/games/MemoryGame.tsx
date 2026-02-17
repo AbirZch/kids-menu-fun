@@ -87,7 +87,6 @@ const MemoryGame = () => {
   return (
     <div className="game-card">
       <div className="text-center mb-4">
-        <h3 className="text-2xl font-display text-primary mb-2">🃏 Memory Match!</h3>
         <p className="text-muted-foreground text-sm mb-4">Find all the matching food pairs!</p>
         <DifficultySelector currentDifficulty={difficulty} onSelect={handleDifficultyChange} configs={configs} />
       </div>

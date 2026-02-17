@@ -91,7 +91,6 @@ const MazeGame = () => {
   return (
     <div className="game-card">
       <div className="text-center mb-4">
-        <h3 className="text-2xl font-display text-primary mb-2">🏃 Maze Adventure! {config.goalEmoji}</h3>
         <p className="text-muted-foreground text-sm mb-4">Navigate through the maze to find the meal!</p>
         <DifficultySelector currentDifficulty={difficulty} onSelect={setDifficulty} configs={mazeSettings} />
       </div>

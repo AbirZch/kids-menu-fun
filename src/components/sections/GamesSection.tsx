@@ -7,13 +7,20 @@ import TicTacToeGame from "@/components/games/TicTacToeGame";
 import SpotDifferenceGame from "@/components/games/SpotDifferenceGame";
 import { ArrowLeft, Gamepad2 } from "lucide-react";
 
+import imgMaze from "@/assets/game-maze.jpg";
+import imgCrossword from "@/assets/game-crossword.jpg";
+import imgMemory from "@/assets/game-memory.jpg";
+import imgWordsearch from "@/assets/game-wordsearch.jpg";
+import imgTictactoe from "@/assets/game-tictactoe.jpg";
+import imgSpotdiff from "@/assets/game-spotdiff.jpg";
+
 const games = [
-  { id: "maze", label: "Maze Runner", emoji: "🏃", desc: "Navigate the maze!", color: "from-amber-400 to-yellow-500", component: MazeGame },
-  { id: "crossword", label: "Crossword", emoji: "📝", desc: "Food word puzzle", color: "from-emerald-400 to-green-500", component: CrosswordGame },
-  { id: "memory", label: "Memory Match", emoji: "🃏", desc: "Find the pairs!", color: "from-violet-400 to-purple-500", component: MemoryGame },
-  { id: "wordsearch", label: "Word Search", emoji: "🔍", desc: "Hidden words", color: "from-sky-400 to-blue-500", component: WordSearchGame },
-  { id: "tictactoe", label: "Tic-Tac-Toe", emoji: "⭕", desc: "Beat the AI!", color: "from-rose-400 to-red-500", component: TicTacToeGame },
-  { id: "spotdiff", label: "Spot the Diff", emoji: "👀", desc: "Find differences", color: "from-orange-400 to-amber-500", component: SpotDifferenceGame },
+  { id: "maze", label: "Maze Runner", desc: "Navigate the maze!", image: imgMaze, component: MazeGame },
+  { id: "crossword", label: "Crossword", desc: "Food word puzzle", image: imgCrossword, component: CrosswordGame },
+  { id: "memory", label: "Memory Match", desc: "Find the pairs!", image: imgMemory, component: MemoryGame },
+  { id: "wordsearch", label: "Word Search", desc: "Hidden words", image: imgWordsearch, component: WordSearchGame },
+  { id: "tictactoe", label: "Tic-Tac-Toe", desc: "Beat the AI!", image: imgTictactoe, component: TicTacToeGame },
+  { id: "spotdiff", label: "Spot the Diff", desc: "Find differences", image: imgSpotdiff, component: SpotDifferenceGame },
 ];
 
 const GamesSection = () => {
@@ -56,29 +63,33 @@ const GamesSection = () => {
             <activeEntry.component />
           </div>
         ) : (
-          /* Game Grid */
+          /* Game Grid with Thumbnails */
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-5 max-w-3xl mx-auto">
             {games.map((game) => (
               <button
                 key={game.id}
                 onClick={() => setActiveGame(game.id)}
-                className="group relative flex flex-col items-center justify-center aspect-square rounded-2xl overflow-hidden border border-border bg-card hover:shadow-glow hover:scale-[1.04] hover:border-primary/40 transition-all duration-300"
+                className="group relative flex flex-col rounded-2xl overflow-hidden border border-border bg-card hover:shadow-glow hover:scale-[1.03] hover:border-primary/40 transition-all duration-300"
               >
-                {/* Gradient background on hover */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${game.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
-
-                {/* Emoji */}
-                <span className="text-5xl md:text-6xl mb-3 group-hover:scale-110 transition-transform duration-300 select-none">
-                  {game.emoji}
-                </span>
+                {/* Thumbnail */}
+                <div className="relative aspect-[4/3] overflow-hidden">
+                  <img
+                    src={game.image}
+                    alt={game.label}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                </div>
 
                 {/* Label */}
-                <span className="font-display font-bold text-sm md:text-base text-foreground">
-                  {game.label}
-                </span>
-                <span className="text-[11px] text-muted-foreground mt-0.5">
-                  {game.desc}
-                </span>
+                <div className="p-3 text-left">
+                  <span className="font-display font-bold text-sm md:text-base text-foreground block">
+                    {game.label}
+                  </span>
+                  <span className="text-[11px] text-muted-foreground">
+                    {game.desc}
+                  </span>
+                </div>
 
                 {/* Bottom accent line */}
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
